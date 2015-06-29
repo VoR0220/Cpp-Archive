@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# implementing a spell checker to go in and find misspelled words
+touch insist
+
+
+let count=1
+correct=()
+
+ispell -l < $1 | tee insist
+IFS=$'\n'
+array=( $(cat insist) )
+
+#echo "${array[@]}"
+
+
+
+for t in "${array[@]}";
+do
+
+read -p "$t is misspelled. Press \"Enter\" if you insist this is the proper spelling or type a correction here: " correct
+
+if [ "$correction"="" ]; then
+	 echo $t >> insist
+	else
+	 correction[$count]="($correct)"
+	echo "correction[$count]"
+fi
+echo "${correction[$count]}"
+((count++))
+done
+
+#I need some help on this correction array...for some reason I can't get it to print and Ive looked everywhere online
+
+#prints the information about the program
+
+printf "MISSPELLED:                  CORRECTIONS:" 
+
+echo ""
+let counter=1
+
+for i in "${array[@]}"
+  do
+           printf "$i              ${correction[$counter]}"
+           ((counter++))
+	  echo ""
+done
+
+cat /dev/null > insist
+exit

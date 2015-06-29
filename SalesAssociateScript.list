@@ -1,0 +1,43 @@
+#!/bin/bash
+
+BEGIN {
+        ## Field separator
+        FS=":";
+        ## Header
+        printf("%s\n", "No-op Computing");
+        printf("%s\n", "2013 Sales Associates Ranking");
+        printf("%-17s %-11s %11s\n", "Name", "Position", "Sales Amount");
+        for (i = 0; i < 42; i++) {
+                printf("%c", "=");
+        }
+        print;
+}
+
+# separate products
+NF == 4 {
+        prod[$1] = $4;
+}
+
+# separate associates
+NF == 3 {
+        assoc[$1] = $2 ":" $3;
+}
+
+# separate sales and add them together
+NF == 5 && $4 ~ /2013/ {
+        if ($2 in prod) {
+                sales[assoc[$NF]] += $3 * prod[$2];
+        }
+}
+END {
+        asort(sales, sort);
+        for (i = length(sales); i > 0; i--) {
+                for (s in sales){
+                        if (sales[s] == sort[i]){
+                                match(s, /(.*):(.*)/, w);
+                                printf("%-17s %-12s %11.2f\n", w[1], w[2], sort[i]);
+                                break;
+                        }
+                }
+        }
+}

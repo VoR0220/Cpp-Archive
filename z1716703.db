@@ -1,0 +1,123 @@
+#!/bin/bash
+
+#functions for our different commands
+#create database 
+function create() {
+
+if [ -f "$1" ]; then
+echo "Error, this database already exists!"
+exit
+elif [ -z "$2" ]; then
+echo "Automobile Database" >> $1
+else
+echo $2 >> $1
+fi
+echo "Database created"
+chmod +rw $1
+exit
+}
+
+#adds to the database different car records on make, model, year and color
+function add() {
+echo "$#"
+
+if [ "$#" -eq 5 ]; then
+echo "$2, $3, $4, $5" >> $1
+elif [ "$#" -eq 4 ]; then
+read -p "Please record color for the vehicle: " color
+echo "$2, $3, $4, $color" >> $1
+elif [ "$#" -eq 3 ]; then
+read -p "Please record year for the vehicle: " year
+read -p "Please record color for the vehicle: " color
+echo "$2, $3, $year, $color" >> $1
+elif [ "$#" -eq 2 ]; then
+read -p "Please record model for the vehicle: " model
+read -p "Please record year for the vehicle: " year
+read -p "Please record color for the vehicle: " color
+echo "$2, $model, $year, $color" >> $1
+else
+read -p "Please record the make for the vehicle: " MAKE
+read -p "Please record model for the vehicle: " model
+read -p "Please record year for the vehicle: " year
+read -p "Please record color for the vehicle: " color
+echo "$MAKE, $model, $year, $color" >> $1
+fi
+}
+
+#view function
+function view() {
+
+case $2 in
+all)
+cat $1
+;;
+single)
+sed -n "$3"p "$1"
+
+;;
+range)
+sed -n "$3","$4"p "$1"
+;;
+*) 
+echo "Wrong Parameters, try again"
+exit;;
+esac
+
+}
+
+function delete() {
+case $2 in
+all)
+cat /dev/null > $1
+;;
+single)
+sed "-i /$3/d $1"
+
+;;
+range)
+sed "'$3,$4d' $1"
+;;
+*)
+echo "Wrong Parameters, try again"
+exit;;
+esac
+
+}
+
+#main area of code
+#we need to focus on two main areas here, the first argument and the second argument
+#everything else can be taken care of by the above functions
+
+#the first argument must be checked to see if the file exists and then offer the chance
+#to be created as one if it doesn't exist.
+
+
+if [ -f "$1" ]; then
+	if [ ! -s "$1" ]; then
+	echo "$1 is empty!"
+	fi
+elif [ ! -f "$1" ] && [ "$2" != 'create' ]; then
+echo "$1 does not exist!"
+create $1 
+fi
+
+#the second argument is checked in a case so that we can get to the commands that we need to get to
+case $2 in
+create)
+create $1 "$3"
+;;
+add)
+add $1 $3 $4 $5 $6
+;;
+view)
+view $1 $3 $4 $5
+;;
+delete)
+delete $1 $3 $4 $5
+;;
+*)
+echo "Invalid command used, please try again"
+;;
+esac
+
+exit
